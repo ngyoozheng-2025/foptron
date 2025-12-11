@@ -1,0 +1,6 @@
+# name,color,difficulty,xp,speed,handling,aggression
+Clu,GOLD,Impossible,1000,3.0,3.0,1.0
+Rinzler,RED,Hard,500,2.8,3.2,0.8
+Sark,YELLOW,Medium,100,2.0,2.0,0.5
+Koura,GREEN,Easy,10,1.5,1.0,0.2
+
