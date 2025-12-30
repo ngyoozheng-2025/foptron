@@ -1,32 +1,31 @@
 import java.io.*;
-import java.util.*;
 
 public class SaveSystem {
-    private static final String SAVE_FILE = "player_stats.csv";
+    private static final String SAVE_FILE = "savegame.csv";
 
-    // Save player data: Name, Score, Wins
-    public static void savePlayerData(String name, int score, int wins) {
-        try (PrintWriter out = new PrintWriter(new FileWriter(SAVE_FILE, true))) {
-            out.println(name + "," + score + "," + wins);
+    public static void saveProgress(Characters player) {
+        // Requirements check: Prompt before save could be handled in GameLoop 
+        try (PrintWriter writer = new PrintWriter(new FileWriter(SAVE_FILE))) {
+            // Format matching your Characters.java constructor order
+            // Note: Direct access to player.lives/discs_owned requires getters if private/protected
+            writer.println(player.getName() + "," + 
+                           player.getXp() + "," + 
+                           player.getLevel() + "," + 
+                           player.updateLives(0) + "," + // Using method to get current lives
+                           player.getDiscsOwned()); // Ensure you add getDiscsOwned() to Characters.java
+            System.out.println("Progress saved to " + SAVE_FILE);
         } catch (IOException e) {
-            System.err.println("Error saving data: " + e.getMessage());
+            System.out.println("Error saving game: " + e.getMessage() );
         }
     }
 
-    // Load all data for leaderboard
-    public static List<String[]> loadAllData() {
-        List<String[]> data = new ArrayList<>();
-        File file = new File(SAVE_FILE);
-        if (!file.exists()) return data;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(SAVE_FILE))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                data.add(line.split(","));
-            }
+    public static String[] loadProgress() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(SAVE_FILE))) {
+            String line = reader.readLine();
+            if (line != null) return line.split(",");
         } catch (IOException e) {
-            System.err.println("Error loading data: " + e.getMessage());
+            System.out.println("No save file found. Starting fresh.");
         }
-        return data;
+        return null;
     }
 }

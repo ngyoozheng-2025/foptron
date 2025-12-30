@@ -1,43 +1,49 @@
-import java.awt.*;
-import java.util.List;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import java.io.*;
+import java.util.*;
 
-public class Leaderboard extends JPanel {
-    public Leaderboard(CardLayout layout, JPanel container) {
-        setLayout(new BorderLayout());
-        setBackground(Color.DARK_GRAY);
+public class Leaderboard {
+    private static final String LEADERBOARD_FILE = "leaderboard.csv";
+    private static final int TOP_LIMIT = 10;
 
-        JLabel title = new JLabel("TOP TRON PILOTS", SwingConstants.CENTER);
-        title.setFont(new Font("Courier New", Font.ITALIC, 32));
-        title.setForeground(Color.GREEN);
-        add(title, BorderLayout.NORTH);
+    public static void addEntry(String name, int level, int score) {
+        List<String> entries = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(LEADERBOARD_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                entries.add(line);
+            }
+        } catch (IOException ignored) {}
 
-        String[] columns = {"Player", "Score", "Wins"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
-        JTable table = new JTable(model);
-        table.setBackground(Color.BLACK);
-        table.setForeground(Color.WHITE);
-        table.setFont(new Font("Monospaced", Font.PLAIN, 16));
+        entries.add(name + "," + level + "," + score + "," + new java.util.Date());
+        
+        // Sort by score (descending)
+        entries.sort((a, b) -> {
+            int scoreA = Integer.parseInt(a.split(",")[2]);
+            int scoreB = Integer.parseInt(b.split(",")[2]);
+            return Integer.compare(scoreB, scoreA);
+        });
 
-        // Load and sort data
-        List<String[]> stats = SaveSystem.loadAllData();
-        stats.sort((a, b) -> Integer.compare(Integer.parseInt(b[1]), Integer.parseInt(a[1])));
-
-        for (String[] row : stats) {
-            model.addRow(row);
+        // Write back top 10
+        try (PrintWriter writer = new PrintWriter(new FileWriter(LEADERBOARD_FILE))) {
+            for (int i = 0; i < Math.min(entries.size(), TOP_LIMIT); i++) {
+                writer.println(entries.get(i));
+            }
+        } catch (IOException e) {
+            System.out.println("Leaderboard Update Error.");
         }
-
-        add(new JScrollPane(table), BorderLayout.CENTER);
-
-        JButton backBtn = new JButton("BACK TO MENU");
-        backBtn.addActionListener(e -> layout.show(container, "Menu"));
-        add(backBtn, BorderLayout.SOUTH);
     }
-    
-    // Achievement Popup helper
-    public static void showAchievement(String message) {
-        JOptionPane.showMessageDialog(null, "🏆 ACHIEVEMENT UNLOCKED: " + message, 
-            "Milestone!", JOptionPane.INFORMATION_MESSAGE);
+
+    public static void display() {
+        System.out.println("\n=== THE GRID: TOP 10 USERS ===");
+        System.out.printf("%-15s %-10s %-10s %-20s\n", "NAME", "LEVEL", "SCORE", "DATE");
+        try (BufferedReader reader = new BufferedReader(new FileReader(LEADERBOARD_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] p = line.split(",");
+                System.out.printf("%-15s %-10s %-10s %-20s\n", p[0], p[1], p[2], p[3]);
+            }
+        } catch (IOException e) {
+            System.out.println("Leaderboard is empty.");
+        }
     }
 }
