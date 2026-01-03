@@ -108,26 +108,25 @@ public abstract class Characters extends Entity{
         }
     }
 
-    public void draw(Graphics2D g2, TEMP_GamePanel gp){
+    public void draw(Graphics2D g2, TEMP_GamePanel gp, double radians){
         if (this.sprite == null) return;
 
         java.awt.geom.AffineTransform old = g2.getTransform();
 
-        int centerX = position.col + gp.tileSize/2;
-        int centerY = position.row + gp.tileSize/2;
+        int centerX = (int) position.col + gp.tileSize/2;
+        int centerY = (int) position.row + gp.tileSize/2;
 
-        double radians = 0;
-        switch (direction) {
-            case UP -> radians = 0;
-            case DOWN -> radians = Math.PI;
-            case LEFT -> radians = Math.PI * 1.5;
-            case RIGHT -> radians = Math.PI * 0.5;
-        }
+        // switch (direction) {
+        //     case UP -> radians = 0;
+        //     case DOWN -> radians = Math.PI;
+        //     case LEFT -> radians = Math.PI * 1.5;
+        //     case RIGHT -> radians = Math.PI * 0.5;
+        // }
 
         g2.rotate(radians, centerX, centerY);
         g2.drawImage(sprite, 
-                     position.col, 
-                     position.row, 
+                     (int) position.col, 
+                     (int) position.row, 
                      gp.tileSize, gp.tileSize, null);
         g2.setTransform(old);
     }

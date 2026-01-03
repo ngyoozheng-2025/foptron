@@ -21,5 +21,6 @@ public class Tron extends Characters{
     @Override
     public void update() {
     }
+    
 
 }

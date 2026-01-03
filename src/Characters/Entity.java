@@ -23,7 +23,7 @@ public abstract class Entity {
     }
 
     public abstract void update();
-    public abstract void draw(Graphics2D g2, TEMP_GamePanel gp);
+    public abstract void draw(Graphics2D g2, TEMP_GamePanel gp, double radians);
 
     public Position getPosition() { return position; }
     public boolean isAlive() { return alive; }

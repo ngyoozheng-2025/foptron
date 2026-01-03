@@ -1,4 +1,9 @@
 package src.Characters;
+
+import java.awt.Graphics2D;
+
+import src.TEMP_Main.TEMP_GamePanel;
+
 public class KevinFlynn extends Characters{
     public KevinFlynn(String name, String color, int xp, int level, double speed, 
         double stability, double handling, int disc_slot, int discs_owned, double lives, 

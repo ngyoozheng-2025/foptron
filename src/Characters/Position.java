@@ -1,9 +1,9 @@
 package src.Characters;
 public class Position {
-    public int row;
-    public int col;
+    public double row;
+    public double col;
 
-    public Position(int row, int col) {
+    public Position(double row, double col) {
         this.row = row;
         this.col = col;
     }
