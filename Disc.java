@@ -38,10 +38,13 @@ public class Disc {
     }
 
     // 2. Collision with PLAYER
-    Position pp = player.getPosition();
-    if (position.row == pp.row && position.col == pp.col) {
+    src.Characters.Position charPos = player.getPosition();
+    // Convert Characters.Position (double) to Position (int) for comparison
+    int playerRow = (int) charPos.row;
+    int playerCol = (int) charPos.col;
+    if (position.row == playerRow && position.col == playerCol) {
         active = false;
-        player.hitByDisc(owner);   // Character method
+        player.hitByDisc((Object)owner);
         return;
     }
 
