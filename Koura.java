@@ -5,6 +5,6 @@ public class Koura extends Enemy {
 
     @Override
     public void decideNextMove(ArenaView arena) {
-        move(AIController.randomMove(this, arena));
+        move(AIController.decideMove(this, arena));
     }
 }
