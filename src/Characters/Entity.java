@@ -10,6 +10,7 @@ public abstract class Entity {
     protected double speed;
     protected boolean alive;
     public BufferedImage sprite;
+    public BufferedImage spriteOverlay;
 
     public Entity(int row, int col, double speed, int alive) {
         this.position = new Position(row, col);

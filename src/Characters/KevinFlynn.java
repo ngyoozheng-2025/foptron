@@ -1,9 +1,4 @@
 package src.Characters;
-
-import java.awt.Graphics2D;
-
-import src.TEMP_Main.TEMP_GamePanel;
-
 public class KevinFlynn extends Characters{
     public KevinFlynn(String name, String color, int xp, int level, double speed, 
         double stability, double handling, int disc_slot, int discs_owned, double lives, 
@@ -18,11 +13,16 @@ public class KevinFlynn extends Characters{
     }
 
     @Override
-    public String getImagePath(){
-        return "/res/Kevin/Kevin.png";
+    public String getBaseImagePath(){
+        return "/res/Kevin/Kevin_base.png";
     }
 
     @Override
     public void update() {
+    }
+
+    @Override
+    public String getOverlayImagePath() {
+        return "/res/Kevin/Kevin_stripe.png";
     }
 }

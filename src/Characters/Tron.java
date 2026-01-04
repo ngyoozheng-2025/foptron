@@ -14,12 +14,17 @@ public class Tron extends Characters{
     }
 
     @Override
-    public String getImagePath(){
-        return "/res/Tron/Tron.png";
+    public String getBaseImagePath(){
+        return "/res/Tron/Tron_base.png";
     }
 
     @Override
     public void update() {
+    }
+
+    @Override
+    public String getOverlayImagePath() {
+        return "/res/Tron/Tron_stripe.png";
     }
     
 

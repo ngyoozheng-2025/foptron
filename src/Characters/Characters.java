@@ -99,11 +99,13 @@ public abstract class Characters extends Entity{
     }
 
     //for image loading
-    public abstract String getImagePath();
+    public abstract String getBaseImagePath();
+    public abstract String getOverlayImagePath();
 
     public void loadPlayerImage(){
         try{
-            this.sprite = ImageIO.read(getClass().getResourceAsStream(getImagePath()));
+            this.sprite = ImageIO.read(getClass().getResourceAsStream(getBaseImagePath()));
+            this.spriteOverlay = ImageIO.read(getClass().getResourceAsStream(getOverlayImagePath()));
         }
         catch (IOException |IllegalArgumentException e){
             System.out.println("Error loading sprite for " + name);
@@ -114,7 +116,14 @@ public abstract class Characters extends Entity{
     List<TrailPoint> trail = new ArrayList<>();
 
     public void draw(Graphics2D g2, TEMP_GamePanel gp, double radians, double velocity){
-        if (this.sprite == null) return;
+        if (this.sprite == null) {
+            System.out.println("No sprite image for " + this.name);
+            return;
+        }
+        if (this.spriteOverlay == null) {
+            System.out.println("No overlay image for " + this.name);
+            return;
+        }
 
         
         if (velocity > 1.0) { // Only leave a trail when moving fast
@@ -138,7 +147,15 @@ public abstract class Characters extends Entity{
             
             java.awt.geom.AffineTransform oldTrail = g2.getTransform();
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, p.life * 0.95f));
-            g2.setColor(new Color(49, 213, 247)); // Light blue "light" for tron, add option for kevin later ***
+            if (this.name.equals("tron")){
+                g2.setColor(new Color(49, 213, 247)); 
+            }
+            else if (this.name.equals("kevin")){
+                g2.setColor(new Color(255, 255, 255)); 
+            }
+            else{
+                g2.setColor(new Color(255, 255, 255));
+            }
             int thickness = (int) ((gp.tileSize-20)* 0.4 * p.life); 
             int length = (int) (p.velocity * 5.0); 
 
@@ -148,7 +165,6 @@ public abstract class Characters extends Entity{
             g2.setTransform(oldTrail);
         }
 
-        // 2. RESET STATE FOR CHARACTER
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 
         java.awt.geom.AffineTransform old = g2.getTransform();
@@ -156,18 +172,14 @@ public abstract class Characters extends Entity{
         int centerX = (int) position.col + gp.tileSize/2;
         int centerY = (int) position.row + gp.tileSize/2;
 
-        // switch (direction) {
-        //     case UP -> radians = 0;
-        //     case DOWN -> radians = Math.PI;
-        //     case LEFT -> radians = Math.PI * 1.5;
-        //     case RIGHT -> radians = Math.PI * 0.5;
-        // }
-
         g2.rotate(radians, centerX, centerY);
         g2.drawImage(sprite, 
                      (int) position.col, 
                      (int) position.row, 
                      gp.tileSize, gp.tileSize, null);
+        float stripeAlpha = Math.min(1.0f, level / 10.0f); 
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, stripeAlpha));
+        g2.drawImage(spriteOverlay, (int) position.col, (int) position.row, gp.tileSize, gp.tileSize, null);
         g2.setTransform(old);
     }
 

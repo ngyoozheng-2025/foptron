@@ -1,14 +1,6 @@
 package src.Characters;
 
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.List;
-
-// import java.awt.Graphics2D;
-// import java.awt.image.BufferedImage;
-// import java.io.IOException;
-
-// import javax.imageio.ImageIO;
 
 import src.TEMP_Main.TEMP_GamePanel;
 import src.TEMP_Main.TEMP_KeyHandler;
