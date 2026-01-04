@@ -9,8 +9,10 @@ public class Tron extends Characters{
 
     @Override
     public void applyStatIncrease(){
-        this.setSpeed(0.3);
-        this.setStability(0.3);
+        this.setSpeed(0.05);
+        if (this.stability + 0.05 < 1){
+            this.setStability(0.05);
+        }
     }
 
     @Override

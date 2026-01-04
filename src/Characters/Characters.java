@@ -94,6 +94,7 @@ public abstract class Characters extends Entity{
             if (level % 15 ==0){
                 disc_slot += 1;
             }
+            startGlow();
             applyStatIncrease();
         }
     }
@@ -113,6 +114,19 @@ public abstract class Characters extends Entity{
         }
     }
 
+    // timer for glow on level up
+    private int glowTimer = 0;
+    private final int GLOW_DURATION = 60;
+
+    public void startGlow() {
+        this.glowTimer = GLOW_DURATION;
+    }
+
+    public void updateGlow() {
+        if (glowTimer > 0) {
+            glowTimer--;
+        }
+    }
     List<TrailPoint> trail = new ArrayList<>();
 
     public void draw(Graphics2D g2, TEMP_GamePanel gp, double radians, double velocity){
@@ -124,6 +138,20 @@ public abstract class Characters extends Entity{
             System.out.println("No overlay image for " + this.name);
             return;
         }
+
+        //determines colour for each sprite
+        Color charColor = new Color(255, 0, 0); //defaulted as red to indicate error
+        if (this.name.equals("Tron")){
+                charColor = new Color(49, 213, 247);
+                
+            }
+            else if (this.name.equals("Kevin")){
+                charColor = new Color(255,255,255); 
+            }
+            else{
+                // red means name is neither Tron nor Kevin
+                System.out.println(this.name);
+            }
 
         
         if (velocity > 1.0) { // Only leave a trail when moving fast
@@ -147,16 +175,7 @@ public abstract class Characters extends Entity{
             
             java.awt.geom.AffineTransform oldTrail = g2.getTransform();
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, p.life * 0.95f));
-            if (this.name.equals("Tron")){
-                g2.setColor(new Color(49, 213, 247)); 
-            }
-            else if (this.name.equals("Kevin")){
-                g2.setColor(new Color(255, 255, 255)); 
-            }
-            else{
-                g2.setColor(new Color(255, 0, 0)); // red means name is neither Tron nor Kevin
-                System.out.println(this.name);
-            }
+            g2.setColor(charColor); 
             int thickness = (int) ((gp.tileSize-20)* 0.4 * p.life); 
             int length = (int) (p.velocity * 5.0); 
 
@@ -173,12 +192,23 @@ public abstract class Characters extends Entity{
         int centerX = (int) position.col + gp.tileSize/2;
         int centerY = (int) position.row + gp.tileSize/2;
 
+        //glow on level up (p.s. very ugly oval right now but will probably upgrade to a nicer pic)
+        if (glowTimer > 0) {
+            updateGlow();
+            float glowAlpha = (float) glowTimer / GLOW_DURATION;
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, glowAlpha * 0.7f));
+            g2.setColor(charColor); 
+            int padding = 0;
+            g2.fillOval((int)position.col - padding/2, (int)position.row - padding/2, gp.tileSize + padding, gp.tileSize + padding);
+        }
+        
+        //draw sprite
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
         g2.rotate(radians, centerX, centerY);
-        g2.drawImage(sprite, 
-                     (int) position.col, 
-                     (int) position.row, 
-                     gp.tileSize, gp.tileSize, null);
-        float stripeAlpha = Math.min(1.0f, 0.2f + (level / 100.0f) * 0.8f); 
+        g2.drawImage(sprite, (int) position.col, (int) position.row, gp.tileSize, gp.tileSize, null);
+
+        //draw sprite overlay
+        float stripeAlpha = Math.min(1.0f, 0.4f + (level / 100.0f) * 0.6f); 
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, stripeAlpha));
         g2.drawImage(spriteOverlay, (int) position.col, (int) position.row, gp.tileSize, gp.tileSize, null);
         g2.setTransform(old);

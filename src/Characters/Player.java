@@ -24,6 +24,7 @@ public class Player{
     private double currentAngle = 0;
     private double targetAngle = 0;
     private double velocity = 0;
+    private int debugTimer = 0;
 
     public void update(){
         if (activeCharacter == null){ return; }
@@ -53,6 +54,16 @@ public class Player{
 
         activeCharacter.position.col += Math.cos(currentAngle) * velocity;
         activeCharacter.position.row += Math.sin(currentAngle) * velocity;
+
+
+        // // temp function to test level up cosmetics
+        // debugTimer++;
+        // if (debugTimer >= 80) { // 3 seconds at 60 FPS
+        //     activeCharacter.gainXp(100); // Grant enough XP to level up
+        //     activeCharacter.levelUp();   // This triggers startGlow() inside Characters.java
+        //     debugTimer = 0;             // Reset timer
+        // }
+
     }
 
     public void draw(Graphics2D g2){
