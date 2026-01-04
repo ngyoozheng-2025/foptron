@@ -1,6 +1,8 @@
 package src.Characters;
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.List;
 
 // import java.awt.Graphics2D;
 // import java.awt.image.BufferedImage;
@@ -61,34 +63,9 @@ public class Player{
         activeCharacter.position.row += Math.sin(currentAngle) * velocity;
     }
 
-    // private double currentAngle = 0;
-
-    // public double updateRotation() {
-    //     double targetAngle = Math.atan2(velocityY, velocityX);
-        
-    //     // Simple interpolation: Move currentAngle towards targetAngle
-    //     // Higher handling = faster rotation
-    //     double rotationSpeed = 0.1 + (activeCharacter.handling * 0.2);
-        
-    //     // This handles the math for smooth turning
-    //     currentAngle += (targetAngle - currentAngle) * rotationSpeed;
-
-    //     return currentAngle;
-    // }
-
-    // private void updateDirection() {
-    //     if (Math.abs(velocityX) > Math.abs(velocityY)) {
-    //         activeCharacter.direction = (velocityX > 0) ? Direction.RIGHT : Direction.LEFT;
-    //     } else if (Math.abs(velocityY) > 0.1) {
-    //         activeCharacter.direction = (velocityY > 0) ? Direction.DOWN : Direction.UP;
-    //     }
-    // }
-
     public void draw(Graphics2D g2){
-        // activeCharacter.loadPlayerImage();
         if (activeCharacter != null){
-            // double radians = updateRotation();
-            activeCharacter.draw(g2, gp, currentAngle);
+            activeCharacter.draw(g2, gp, currentAngle, velocity);
         }
     }
 

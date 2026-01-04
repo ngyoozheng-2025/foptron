@@ -1,7 +1,11 @@
 package src.Characters;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -108,8 +112,45 @@ public abstract class Characters extends Entity{
         }
     }
 
-    public void draw(Graphics2D g2, TEMP_GamePanel gp, double radians){
+    List<TrailPoint> trail = new ArrayList<>();
+
+    public void draw(Graphics2D g2, TEMP_GamePanel gp, double radians, double velocity){
         if (this.sprite == null) return;
+
+        
+        if (velocity > 1.0) { // Only leave a trail when moving fast
+            TrailPoint p = new TrailPoint();
+            p.col = position.col + gp.tileSize/2.0; // Center of sprite
+            p.row = position.row + gp.tileSize/2.0;
+            p.angle = radians;
+            p.velocity = velocity;
+            trail.add(p);
+        }
+
+        // FADE TRAIL
+        for (int i = trail.size() - 1; i >= 0; i--) {
+            trail.get(i).life -= 0.035f; // Adjust this to change trail length
+            if (trail.get(i).life <= 0) {
+                trail.remove(i);
+            }
+        }
+        for (int i = 0; i < trail.size(); i++) {
+            TrailPoint p = trail.get(i);
+            
+            java.awt.geom.AffineTransform oldTrail = g2.getTransform();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, p.life * 0.95f));
+            g2.setColor(new Color(49, 213, 247)); // Light blue "light" for tron, add option for kevin later ***
+            int thickness = (int) ((gp.tileSize-20)* 0.4 * p.life); 
+            int length = (int) (p.velocity * 5.0); 
+
+            g2.translate(p.col, p.row);
+            g2.rotate(p.angle);
+            g2.fillRoundRect(-length, -thickness / 2, length, thickness, thickness, thickness);
+            g2.setTransform(oldTrail);
+        }
+
+        // 2. RESET STATE FOR CHARACTER
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 
         java.awt.geom.AffineTransform old = g2.getTransform();
 
