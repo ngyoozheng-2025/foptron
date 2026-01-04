@@ -46,4 +46,24 @@ public class Leaderboard {
             System.out.println("Leaderboard is empty.");
         }
     }
+
+    /** change a bit
+     * Returns top 10 leaderboard entries for GUI display
+     * @return List of String arrays [name, level, score, date]
+     */
+    public static List<String[]> getTop10Entries() {
+        List<String[]> entries = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(LEADERBOARD_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 4) {
+                    entries.add(parts);
+                }
+            }
+        } catch (IOException e) {
+            // Return empty list if file doesn't exist
+        }
+        return entries;
+    }
 }

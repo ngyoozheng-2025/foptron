@@ -48,9 +48,8 @@ public abstract class Characters extends Entity{
     public void setSpeed(double value){speed += value;}
     public void setStability(double value){stability += value;}
     public void setHandling(double value){handling += value;}
-    public void setDiscsOwned(int value){
-        discs_owned = Math.min(this.disc_slot, discs_owned + value);
-    }
+    public void setDiscsOwned(int value){discs_owned = Math.min(this.disc_slot, discs_owned + value);} //change
+    public void setLevel(int newLevel) {this.level = newLevel;}
 
     // method to update lives, note value can be +ve or -ve, also determines if a character is dead
     public void updateLives(double value){
@@ -170,5 +169,36 @@ public abstract class Characters extends Entity{
                      (int) position.row, 
                      gp.tileSize, gp.tileSize, null);
         g2.setTransform(old);
+    }
+
+    public String getDescription() {
+    // Format: Color • Handling/Stability/Speed summary
+    return color + " • Handling: " + String.format("%.1f", handling) +
+           " • Stability: " + String.format("%.1f", stability) +
+           " • Speed: " + String.format("%.1f", speed);
+
+        }
+    
+
+    public void useDisc () {
+        if (discs_owned > 0) {
+            discs_owned--;
+        }
+    }
+    public double getSpeed() { 
+        return speed;
+    }
+
+    public double getLives() { 
+        return lives; 
+
+    }
+    
+    public int getDiscsOwned() { 
+        return discs_owned; 
+
+    }
+    public int getDiscSlot() { 
+        return disc_slot; 
     }
 }

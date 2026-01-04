@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import src.Characters.Characters;
 
 public class Disc {
     private Position position;
@@ -16,7 +17,7 @@ public class Disc {
         this.owner = owner;
     }
 
-    public void update(ArenaView arena, Character player, ArrayList<Enemy> enemies) {
+    public void update(ArenaView arena, Characters player, ArrayList<Enemy> enemies) {
     if (!active) return;
 
     // Move disc one tile

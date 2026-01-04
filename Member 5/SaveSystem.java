@@ -1,4 +1,5 @@
 import java.io.*;
+import src.Characters.Characters;
 
 public class SaveSystem {
     private static final String SAVE_FILE = "savegame.csv";
@@ -11,11 +12,25 @@ public class SaveSystem {
             writer.println(player.getName() + "," + 
                            player.getXp() + "," + 
                            player.getLevel() + "," + 
-                           player.updateLives(0) + "," + // Using method to get current lives
+                           player.getLives() + "," + // Get current lives // Using method to get current lives
                            player.getDiscsOwned()); // Ensure you add getDiscsOwned() to Characters.java
             System.out.println("Progress saved to " + SAVE_FILE);
         } catch (IOException e) {
             System.out.println("Error saving game: " + e.getMessage() );
+        }
+    }
+
+    /**
+     * Lightweight overload for callers that only have primitive data, so the engine can
+     * persist progress without needing the full Characters object. Format matches the
+     * existing CSV: name,xp,level,lives,discs.
+     */
+    public static void saveProgress(String name, int xp, int level, int lives, int discs) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(SAVE_FILE))) {
+            writer.println(name + "," + xp + "," + level + "," + lives + "," + discs);
+            System.out.println("Progress saved to " + SAVE_FILE);
+        } catch (IOException e) {
+            System.out.println("Error saving game: " + e.getMessage());
         }
     }
 
