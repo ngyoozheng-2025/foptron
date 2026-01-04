@@ -244,4 +244,10 @@ public abstract class Characters extends Entity{
     public int getDiscSlot() { 
         return disc_slot; 
     }
+
+    // Method called when character is hit by a disc
+    // Note: Using Object to avoid package import issues (Enemy is in default package)
+    public void hitByDisc(Object owner) {
+        updateLives(-1.0); // Lose a life when hit by disc
+    }
 }
