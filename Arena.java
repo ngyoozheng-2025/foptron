@@ -152,11 +152,28 @@ public class Arena implements ArenaView {
         return grid[row][col] == 0;
     }
 
+   // Current player position (updated by GameEngine)
+    private Position currentPlayerPos = null;
+    
+    /**
+     * Set the current player position for AI tracking
+     */
+    public void setPlayerPosition(Position pos) {
+        this.currentPlayerPos = pos;
+    }
+    
     @Override
     public Position getPlayerPosition() {
+        // Return current player position if available, otherwise spawn point
+        return currentPlayerPos != null ? currentPlayerPos : playerSpawn;
+    }
+    
+    /**
+     * Get the spawn position for new players
+     */
+    public Position getPlayerSpawn() {
         return playerSpawn;
     }
-
     // Add a jetwall at integer grid position
     public void placeJetwall(int row, int col) {
         if (!inBounds(row, col))
@@ -231,5 +248,15 @@ public class Arena implements ArenaView {
         if (!inBounds(row, col))
             return 1; // out-of-bounds = wall
         return grid[row][col];
+    }
+
+    //get grid as rendering 
+    //copy of the grid where 0=empty, 1=wall, 2=jetwall
+    public int[][] getGridCopy() {
+        int[][] copy = new int[SIZE][SIZE];
+        for (int r = 0; r < SIZE; r++) {
+            System.arraycopy(grid[r], 0, copy[r], 0, SIZE);
+        }
+        return copy;
     }
 }
