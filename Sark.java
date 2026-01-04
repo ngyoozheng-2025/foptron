@@ -5,6 +5,6 @@ public class Sark extends Enemy {
 
     @Override
     public void decideNextMove(ArenaView arena) {
-        move(AIController.patternMove(this, arena));
+        move(AIController.decideMove(this, arena));
     }
 }
