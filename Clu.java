@@ -5,6 +5,6 @@ public class Clu extends Enemy {
 
     @Override
     public void decideNextMove(ArenaView arena) {
-        move(AIController.chaseAvoid(this, arena));
+        move(AIController.decideMove(this, arena));
     }
 }
