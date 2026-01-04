@@ -5,6 +5,6 @@ public class Rinzler extends Enemy {
 
     @Override
     public void decideNextMove(ArenaView arena) {
-        move(AIController.chase(this, arena));
+        move(AIController.decideMove(this, arena));
     }
 }
