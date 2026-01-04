@@ -147,14 +147,15 @@ public abstract class Characters extends Entity{
             
             java.awt.geom.AffineTransform oldTrail = g2.getTransform();
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, p.life * 0.95f));
-            if (this.name.equals("tron")){
+            if (this.name.equals("Tron")){
                 g2.setColor(new Color(49, 213, 247)); 
             }
-            else if (this.name.equals("kevin")){
+            else if (this.name.equals("Kevin")){
                 g2.setColor(new Color(255, 255, 255)); 
             }
             else{
-                g2.setColor(new Color(255, 255, 255));
+                g2.setColor(new Color(255, 0, 0)); // red means name is neither Tron nor Kevin
+                System.out.println(this.name);
             }
             int thickness = (int) ((gp.tileSize-20)* 0.4 * p.life); 
             int length = (int) (p.velocity * 5.0); 
@@ -177,7 +178,7 @@ public abstract class Characters extends Entity{
                      (int) position.col, 
                      (int) position.row, 
                      gp.tileSize, gp.tileSize, null);
-        float stripeAlpha = Math.min(1.0f, level / 10.0f); 
+        float stripeAlpha = Math.min(1.0f, 0.2f + (level / 100.0f) * 0.8f); 
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, stripeAlpha));
         g2.drawImage(spriteOverlay, (int) position.col, (int) position.row, gp.tileSize, gp.tileSize, null);
         g2.setTransform(old);

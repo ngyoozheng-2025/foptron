@@ -39,7 +39,7 @@ public class TEMP_GamePanel extends JPanel implements Runnable{
         this.addKeyListener(keyH);
         this.setFocusable(true);
         characterList = CharacterLoader.loadCharacters("src/Characters/Characters.txt");
-        player = new Player(this, keyH, characterList.get(1));
+        player = new Player(this, keyH, characterList.get(0));
 
     }
 
