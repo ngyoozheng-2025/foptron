@@ -58,6 +58,10 @@ public class EnemyLoader {
                 else if (roll < 70) nameToSpawn = "Rinzler";
                 else nameToSpawn = "Clu";                  // High chance of boss
             }
+            else if (difficulty.equalsIgnoreCase("IMPOSSIBLE")) {
+                if (roll < 20) nameToSpawn = "Rinzler";    // Some Rinzler for variety
+                else nameToSpawn = "Clu";                  // Mostly Clu (impossible boss)
+            }
             else { 
                 // Default / Medium
                 if (roll < 50) nameToSpawn = "Sark";
