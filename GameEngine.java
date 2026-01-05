@@ -454,9 +454,12 @@ public class GameEngine extends JFrame implements KeyListener {
         Iterator<Disc> it = activeDiscs.iterator();
         while (it.hasNext()) {
             Disc disc = it.next();
+            
+            // Update all discs (glow timer updates even for inactive discs)
             disc.update(arena, player, enemies);
             
-            if (!disc.isActive()) {
+            // Remove inactive discs only if they don't have collision glow
+            if (!disc.isActive() && !disc.hasCollisionGlow()) {
                 it.remove();
             }
         }
@@ -998,11 +1001,19 @@ public class GameEngine extends JFrame implements KeyListener {
             if (activeDiscs == null) return;
             
             for (Disc disc : activeDiscs) {
-                if (!disc.isActive()) continue;
+                if (!disc.isActive()) {
+                    // Draw collision glow even for inactive discs
+                    if (disc.hasCollisionGlow()) {
+                        drawCollisionGlow(g2d, disc);
+                    }
+                    continue;
+                }
                 
-                Position pos = disc.getPosition();
-                int x = pos.col * tile_size + tile_size / 2;
-                int y = pos.row * tile_size + tile_size / 2;
+                // Use smooth position for animation across tiles
+                double smoothCol = disc.getSmoothCol();
+                double smoothRow = disc.getSmoothRow();
+                double x = smoothCol * tile_size + tile_size / 2.0;
+                double y = smoothRow * tile_size + tile_size / 2.0;
                 
                 // Disc color (player disc is cyan, enemy disc is red)
                 Color discColor = disc.getOwner() == null ? new Color(0, 255, 255) : new Color(255, 100, 100);
@@ -1010,18 +1021,56 @@ public class GameEngine extends JFrame implements KeyListener {
                 // Outer glow effect
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
                 g2d.setColor(discColor);
-                g2d.fillOval(x - 8, y - 8, 16, 16);
+                g2d.fillOval((int)(x - 8), (int)(y - 8), 16, 16);
                 
                 // Disc core
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
                 g2d.setColor(discColor);
-                g2d.fillOval(x - 5, y - 5, 10, 10);
+                g2d.fillOval((int)(x - 5), (int)(y - 5), 10, 10);
                 
                 // Inner ring (spinning effect)
                 g2d.setColor(Color.WHITE);
                 g2d.setStroke(new BasicStroke(2));
-                g2d.drawOval(x - 4, y - 4, 8, 8);
+                g2d.drawOval((int)(x - 4), (int)(y - 4), 8, 8);
             }
+        }
+        
+        /**
+         * Draw collision glow effect at disc collision position
+         */
+        private void drawCollisionGlow(Graphics2D g2d, Disc disc) {
+            Position collisionPos = disc.getLastCollisionPos();
+            int x = collisionPos.col * tile_size + tile_size / 2;
+            int y = collisionPos.row * tile_size + tile_size / 2;
+            
+            float glowIntensity = disc.getCollisionGlowIntensity();
+            Color discColor = disc.getOwner() == null ? new Color(0, 255, 255) : new Color(255, 100, 100);
+            
+            // Multiple glow layers for dramatic effect
+            int maxGlowSize = tile_size * 3;
+            int minGlowSize = tile_size;
+            
+            // Outer glow (largest, most transparent)
+            float outerAlpha = glowIntensity * 0.3f;
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, outerAlpha));
+            g2d.setColor(discColor);
+            int outerSize = (int)(minGlowSize + (maxGlowSize - minGlowSize) * glowIntensity);
+            g2d.fillOval(x - outerSize / 2, y - outerSize / 2, outerSize, outerSize);
+            
+            // Middle glow
+            float middleAlpha = glowIntensity * 0.5f;
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, middleAlpha));
+            int middleSize = (int)(minGlowSize + (maxGlowSize * 0.6f - minGlowSize) * glowIntensity);
+            g2d.fillOval(x - middleSize / 2, y - middleSize / 2, middleSize, middleSize);
+            
+            // Inner bright core
+            float coreAlpha = glowIntensity * 0.8f;
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, coreAlpha));
+            int coreSize = (int)(tile_size * 0.5f + (tile_size * 1.5f - tile_size * 0.5f) * glowIntensity);
+            g2d.fillOval(x - coreSize / 2, y - coreSize / 2, coreSize, coreSize);
+            
+            // Reset composite
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
         }
         
         private void drawStateOverlay(Graphics2D g2d) {

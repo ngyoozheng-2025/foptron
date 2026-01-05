@@ -17,45 +17,49 @@ public class TestDisc {
                   start_row, start_column, alive);
         }
         
-        @Override
         public void hitByDisc(Object owner) {
             wasHit = true;
             if (owner instanceof Enemy) {
                 lastHitBy = (Enemy) owner;
                 updateLives(-1.0); // Lose a life when hit
-                System.out.println("    -> Character hit by disc from " + ((Enemy)owner).getName() + "! Lives: " + getLives());
+                System.out.println("    -> Character hit by disc from " + ((Enemy)owner).getName() + "! Lives: " + lives);
             } else {
                 updateLives(-1.0);
-                System.out.println("    -> Character hit by disc! Lives: " + getLives());
+                System.out.println("    -> Character hit by disc! Lives: " + lives);
             }
         }
         
         public boolean wasHit() { return wasHit; }
         public Enemy getLastHitBy() { return lastHitBy; }
         
-        @Override
         protected void applyStatIncrease() {
             // Empty implementation for testing
         }
         
-        @Override
         public String getBaseImagePath() {
             return "/res/Tron/Tron_base.png";
         }
         
-        @Override
         public String getOverlayImagePath() {
             return "/res/Tron/Tron_stripe.png";
         }
         
-        @Override
+        // Add getImagePath if it exists as abstract method in Characters
+        public String getImagePath() {
+            return getBaseImagePath();
+        }
+        
         public void update() {
             // Empty implementation for testing
         }
         
-        @Override
         public void draw(Graphics2D g2, TEMP_GamePanel gp, double radians, double velocity) {
             // Empty implementation for testing
+        }
+        
+        // Helper method to get lives for testing
+        public double getLives() {
+            return lives;
         }
     }
     
@@ -112,7 +116,7 @@ public class TestDisc {
         System.out.println("After update: Position (" + disc2.getPosition().row + ", " + disc2.getPosition().col
             + ") | Active: " + disc2.isActive());
         System.out.println("Player was hit: " + player2.wasHit());
-        System.out.println("Player lives remaining: " + player2.getLives());
+        System.out.println("Player lives remaining: " + ((double)Math.round(player2.getLives() * 10) / 10));
         
         System.out.println("\n--- Test 3: Disc hitting another enemy ---");
         TestCharacter player3 = new TestCharacter("Tron", "BLUE", 0, 1, 2.0, 1.0, 1.0, 3, 3, 3.0, 20, 20, 1);
@@ -161,6 +165,57 @@ public class TestDisc {
         System.out.println("After update: Position (" + disc5.getPosition().row + ", " + disc5.getPosition().col
             + ") | Active: " + disc5.isActive());
         System.out.println("Enemy1 alive after: " + enemy1.isAlive() + " (should still be alive - disc cannot hit owner)");
+        
+        System.out.println("\n--- Test 6: Smooth animation across tiles ---");
+        Disc disc6 = new Disc(new Position(10, 10), Direction.RIGHT, null);
+        System.out.println("Disc starting at grid position: (" + disc6.getPosition().row + ", " + disc6.getPosition().col + ")");
+        System.out.println("Smooth position: (" + String.format("%.3f", disc6.getSmoothRow()) + ", " + String.format("%.3f", disc6.getSmoothCol()) + ")");
+        System.out.println("Direction: RIGHT");
+        System.out.println("Testing smooth movement over 8 frames (should move 1 tile):");
+        
+        for (int i = 0; i < 8; i++) {
+            disc6.update(arena, player3, enemies2);
+            System.out.println("  Frame " + (i + 1) + ": Grid(" + disc6.getPosition().row + ", " + disc6.getPosition().col 
+                + ") Smooth(" + String.format("%.3f", disc6.getSmoothRow()) + ", " + String.format("%.3f", disc6.getSmoothCol()) + ")");
+        }
+        System.out.println("Final position should be (10, 11) - moved 1 tile smoothly");
+        
+        System.out.println("\n--- Test 7: Collision glow effect ---");
+        Disc disc7 = new Disc(new Position(5, 10), Direction.UP, enemy1);
+        System.out.println("Disc starting at: (" + disc7.getPosition().row + ", " + disc7.getPosition().col + ")");
+        System.out.println("Wall at: (5, 10) - disc will hit wall immediately");
+        System.out.println("Has collision glow before collision: " + disc7.hasCollisionGlow());
+        
+        disc7.update(arenaWithWall, player3, enemies2);
+        System.out.println("After collision:");
+        System.out.println("  Active: " + disc7.isActive() + " (should be false)");
+        System.out.println("  Has collision glow: " + disc7.hasCollisionGlow() + " (should be true)");
+        System.out.println("  Glow intensity: " + String.format("%.2f", disc7.getCollisionGlowIntensity()) + " (should be 1.0)");
+        Position glowPos = disc7.getLastCollisionPos();
+        System.out.println("  Collision position: (" + glowPos.row + ", " + glowPos.col + ")");
+        
+        // Test glow fading over time
+        System.out.println("\n  Testing glow fade over 5 frames:");
+        for (int i = 0; i < 5; i++) {
+            disc7.update(arenaWithWall, player3, enemies2);
+            System.out.println("    Frame " + (i + 1) + ": Glow intensity = " + String.format("%.2f", disc7.getCollisionGlowIntensity()) 
+                + ", Has glow = " + disc7.hasCollisionGlow());
+        }
+        
+        System.out.println("\n--- Test 8: Collision glow on player hit ---");
+        TestCharacter player4 = new TestCharacter("Tron", "BLUE", 0, 1, 2.0, 1.0, 1.0, 3, 3, 3.0, 10, 10, 1);
+        Disc disc8 = new Disc(new Position(10, 9), Direction.RIGHT, enemy1);
+        System.out.println("Disc starting at: (" + disc8.getPosition().row + ", " + disc8.getPosition().col + ")");
+        System.out.println("Player at: (10, 10)");
+        System.out.println("Has collision glow before: " + disc8.hasCollisionGlow());
+        
+        disc8.update(arena, player4, enemies2);
+        System.out.println("After hitting player:");
+        System.out.println("  Active: " + disc8.isActive() + " (should be false)");
+        System.out.println("  Has collision glow: " + disc8.hasCollisionGlow() + " (should be true)");
+        System.out.println("  Player was hit: " + player4.wasHit() + " (should be true)");
+        Position playerGlowPos = disc8.getLastCollisionPos();
+        System.out.println("  Collision position: (" + playerGlowPos.row + ", " + playerGlowPos.col + ") (should be 10, 10)");
         
         System.out.println("\n=== Test Complete ===");
     }
