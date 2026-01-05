@@ -13,7 +13,7 @@ public abstract class Enemy {
     protected boolean alive = true;
 
     public Enemy(String name, String color, double speed, double handling,
-                 double aggression, int xpReward, Position startPos) {
+            double aggression, int xpReward, Position startPos) {
 
         this.name = name;
         this.color = color;
@@ -40,19 +40,35 @@ public abstract class Enemy {
         }
     }
 
-    public Position getPosition() { return position; }
-    public boolean isAlive() { return alive; }
-    public String getName() { return name; }
-    public String getColor() { return color; }
-    public int getXpReward() { return xpReward; }
+    public Position getPosition() {
+        return position;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public int getXpReward() {
+        return xpReward;
+    }
 
     public void hitByDisc() {
         lives--;
-        if (lives <= 0) alive = false;
+        if (lives <= 0)
+            alive = false;
     }
 
     public void hitJetwall() {
         lives--;
-        if (lives <= 0) alive = false;
+        if (lives <= 0)
+            alive = false;
     }
 }

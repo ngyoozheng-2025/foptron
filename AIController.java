@@ -6,7 +6,7 @@ public class AIController {
     // ===== Main difficulty-based AI router =====
     public static Direction decideMove(Enemy enemy, ArenaView arena) {
         String difficulty = getDifficultyFromName(enemy.getName());
-        
+
         return switch (difficulty) {
             case "Easy" -> easyBehavior(enemy, arena);
             case "Medium" -> mediumBehavior(enemy, arena);
@@ -49,10 +49,10 @@ public class AIController {
     // ===== Medium: Simple Pattern Movement (Sark) =====
     public static Direction patternMove(Enemy enemy, ArenaView arena) {
         Direction[] order = {
-            Direction.RIGHT,
-            Direction.DOWN,
-            Direction.LEFT,
-            Direction.UP
+                Direction.RIGHT,
+                Direction.DOWN,
+                Direction.LEFT,
+                Direction.UP
         };
 
         for (Direction d : order) {
@@ -90,37 +90,38 @@ public class AIController {
     private static Direction hardBehavior(Enemy enemy, ArenaView arena) {
         Position player = arena.getPlayerPosition();
         Position pos = enemy.getPosition();
-        
+
         // Anticipate player movement by predicting where they'll be
         Position predictedPlayer = anticipatePlayerPosition(player, pos);
-        
+
         // Try to intercept predicted position
         Direction interceptDir = getDirectionToTarget(pos, predictedPlayer);
         Position next = nextPos(pos, interceptDir);
-        
+
         if (arena.isEmpty(next.row, next.col) && !arena.isJetwall(next.row, next.col)) {
             return interceptDir;
         }
-        
+
         // If interception blocked, try flanking
         Direction flankDir = attemptFlank(enemy, arena, player);
         if (flankDir != null) {
             return flankDir;
         }
-        
+
         // Fallback to direct chase with obstacle avoidance
         return chaseWithAvoidance(enemy, arena);
     }
 
-    // ===== Impossible: Advanced Strategies + Anticipation + Flanking + Team Coordination (Clu) =====
+    // ===== Impossible: Advanced Strategies + Anticipation + Flanking + Team
+    // Coordination (Clu) =====
     public static Direction chaseAvoid(Enemy enemy, ArenaView arena) {
         Direction primary = chase(enemy, arena);
 
         Direction[] options = {
-            primary,
-            turnLeft(primary),
-            turnRight(primary),
-            opposite(primary)
+                primary,
+                turnLeft(primary),
+                turnRight(primary),
+                opposite(primary)
         };
 
         for (Direction d : options) {
@@ -134,10 +135,10 @@ public class AIController {
     private static Direction impossibleBehavior(Enemy enemy, ArenaView arena) {
         Position player = arena.getPlayerPosition();
         Position pos = enemy.getPosition();
-        
+
         // Advanced anticipation: predict multiple steps ahead
         Position predictedPlayer = anticipatePlayerPositionAdvanced(player, pos);
-        
+
         // Try strategic positioning (cut off escape routes)
         Direction strategicDir = strategicPositioning(enemy, arena, predictedPlayer);
         if (strategicDir != null) {
@@ -146,19 +147,19 @@ public class AIController {
                 return strategicDir;
             }
         }
-        
+
         // Attempt flanking from multiple angles
         Direction flankDir = attemptAdvancedFlank(enemy, arena, player);
         if (flankDir != null) {
             return flankDir;
         }
-        
+
         // Advanced chase with obstacle avoidance and jetwall awareness
         return advancedChaseAvoid(enemy, arena);
     }
 
     // ===== Helper Methods for Advanced Behaviors =====
-    
+
     private static Direction basicChase(Enemy enemy, ArenaView arena) {
         Position player = arena.getPlayerPosition();
         Position pos = enemy.getPosition();
@@ -176,11 +177,11 @@ public class AIController {
         // Since we don't have player direction, predict based on relative position
         int rowDiff = player.row - enemy.row;
         int colDiff = player.col - enemy.col;
-        
+
         // Predict player moves 1-2 steps toward or away from enemy
         int predictRow = player.row;
         int predictCol = player.col;
-        
+
         if (Math.abs(rowDiff) > Math.abs(colDiff)) {
             // Player likely moving vertically
             predictRow += rowDiff > 0 ? 1 : -1;
@@ -188,7 +189,7 @@ public class AIController {
             // Player likely moving horizontally
             predictCol += colDiff > 0 ? 1 : -1;
         }
-        
+
         return new Position(predictRow, predictCol);
     }
 
@@ -197,14 +198,14 @@ public class AIController {
         // More sophisticated prediction: consider multiple possible moves
         int rowDiff = player.row - enemy.row;
         int colDiff = player.col - enemy.col;
-        
+
         // Predict 2 steps ahead with strategic thinking
         int predictRow = player.row;
         int predictCol = player.col;
-        
+
         // If player is far, predict they'll move closer; if close, predict escape
         int distance = Math.abs(rowDiff) + Math.abs(colDiff);
-        
+
         if (distance > 5) {
             // Far away: predict player moves toward center or enemy
             if (Math.abs(rowDiff) > Math.abs(colDiff)) {
@@ -220,7 +221,7 @@ public class AIController {
                 predictCol += colDiff > 0 ? 1 : -1;
             }
         }
-        
+
         return new Position(predictRow, predictCol);
     }
 
@@ -228,7 +229,7 @@ public class AIController {
     private static Direction getDirectionToTarget(Position from, Position to) {
         int rowDiff = to.row - from.row;
         int colDiff = to.col - from.col;
-        
+
         if (Math.abs(rowDiff) > Math.abs(colDiff)) {
             return rowDiff > 0 ? Direction.DOWN : Direction.UP;
         } else {
@@ -239,28 +240,28 @@ public class AIController {
     // Attempt to flank player from the side
     private static Direction attemptFlank(Enemy enemy, ArenaView arena, Position player) {
         Position pos = enemy.getPosition();
-        
+
         // Calculate relative position
         int rowDiff = player.row - pos.row;
         int colDiff = player.col - pos.col;
-        
+
         // Try to approach from perpendicular direction
         Direction[] flankOptions;
-        
+
         if (Math.abs(rowDiff) > Math.abs(colDiff)) {
             // Player is more vertical, flank horizontally
-            flankOptions = new Direction[]{
-                colDiff > 0 ? Direction.RIGHT : Direction.LEFT,
-                colDiff > 0 ? Direction.LEFT : Direction.RIGHT
+            flankOptions = new Direction[] {
+                    colDiff > 0 ? Direction.RIGHT : Direction.LEFT,
+                    colDiff > 0 ? Direction.LEFT : Direction.RIGHT
             };
         } else {
             // Player is more horizontal, flank vertically
-            flankOptions = new Direction[]{
-                rowDiff > 0 ? Direction.DOWN : Direction.UP,
-                rowDiff > 0 ? Direction.UP : Direction.DOWN
+            flankOptions = new Direction[] {
+                    rowDiff > 0 ? Direction.DOWN : Direction.UP,
+                    rowDiff > 0 ? Direction.UP : Direction.DOWN
             };
         }
-        
+
         // Try flanking directions
         for (Direction d : flankOptions) {
             Position next = nextPos(pos, d);
@@ -268,21 +269,21 @@ public class AIController {
                 return d;
             }
         }
-        
+
         return null; // Flanking not possible
     }
 
     // Advanced flanking for Impossible difficulty
     private static Direction attemptAdvancedFlank(Enemy enemy, ArenaView arena, Position player) {
         Position pos = enemy.getPosition();
-        
+
         // Try multiple flanking strategies
         Direction[] strategies = {
-            attemptFlank(enemy, arena, player), // Basic flank
-            attemptDiagonalApproach(enemy, arena, player), // Diagonal approach
-            attemptCutoff(enemy, arena, player) // Cut off escape route
+                attemptFlank(enemy, arena, player), // Basic flank
+                attemptDiagonalApproach(enemy, arena, player), // Diagonal approach
+                attemptCutoff(enemy, arena, player) // Cut off escape route
         };
-        
+
         for (Direction d : strategies) {
             if (d != null) {
                 Position next = nextPos(pos, d);
@@ -291,7 +292,7 @@ public class AIController {
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -300,44 +301,44 @@ public class AIController {
         Position pos = enemy.getPosition();
         int rowDiff = player.row - pos.row;
         int colDiff = player.col - pos.col;
-        
+
         // Try to move in a direction that combines both axes
         Direction[] diagonalOptions;
-        
+
         if (rowDiff > 0 && colDiff > 0) {
             // Player is down-right, try to approach from up-left
-            diagonalOptions = new Direction[]{Direction.UP, Direction.LEFT};
+            diagonalOptions = new Direction[] { Direction.UP, Direction.LEFT };
         } else if (rowDiff > 0 && colDiff < 0) {
             // Player is down-left, try to approach from up-right
-            diagonalOptions = new Direction[]{Direction.UP, Direction.RIGHT};
+            diagonalOptions = new Direction[] { Direction.UP, Direction.RIGHT };
         } else if (rowDiff < 0 && colDiff > 0) {
             // Player is up-right, try to approach from down-left
-            diagonalOptions = new Direction[]{Direction.DOWN, Direction.LEFT};
+            diagonalOptions = new Direction[] { Direction.DOWN, Direction.LEFT };
         } else {
             // Player is up-left, try to approach from down-right
-            diagonalOptions = new Direction[]{Direction.DOWN, Direction.RIGHT};
+            diagonalOptions = new Direction[] { Direction.DOWN, Direction.RIGHT };
         }
-        
+
         for (Direction d : diagonalOptions) {
             Position next = nextPos(pos, d);
             if (arena.isEmpty(next.row, next.col) && !arena.isJetwall(next.row, next.col)) {
                 return d;
             }
         }
-        
+
         return null;
     }
 
     // Cut off escape route
     private static Direction attemptCutoff(Enemy enemy, ArenaView arena, Position player) {
         Position pos = enemy.getPosition();
-        
+
         // Try to position between player and likely escape direction
         // Check which directions player can escape to
         Direction[] escapeDirections = {
-            Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT
+                Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT
         };
-        
+
         for (Direction escapeDir : escapeDirections) {
             Position escapePos = nextPos(player, escapeDir);
             if (arena.isEmpty(escapePos.row, escapePos.col)) {
@@ -349,36 +350,36 @@ public class AIController {
                 }
             }
         }
-        
+
         return null;
     }
 
     // Strategic positioning to control the battlefield
     private static Direction strategicPositioning(Enemy enemy, ArenaView arena, Position target) {
         Position pos = enemy.getPosition();
-        
+
         // Try to position optimally relative to target
         // Prefer positions that limit player's movement options
-        
+
         Direction[] strategicOptions = {
-            getDirectionToTarget(pos, target),
-            turnLeft(getDirectionToTarget(pos, target)),
-            turnRight(getDirectionToTarget(pos, target))
+                getDirectionToTarget(pos, target),
+                turnLeft(getDirectionToTarget(pos, target)),
+                turnRight(getDirectionToTarget(pos, target))
         };
-        
+
         for (Direction d : strategicOptions) {
             Position next = nextPos(pos, d);
             if (arena.isEmpty(next.row, next.col) && !arena.isJetwall(next.row, next.col)) {
                 // Check if this position is strategically better
                 int optionsFromNext = countValidMoves(next, arena);
                 int optionsFromCurrent = countValidMoves(pos, arena);
-                
+
                 if (optionsFromNext >= optionsFromCurrent) {
                     return d;
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -397,21 +398,21 @@ public class AIController {
     // Chase with obstacle avoidance
     private static Direction chaseWithAvoidance(Enemy enemy, ArenaView arena) {
         Direction primary = chase(enemy, arena);
-        
+
         Direction[] options = {
-            primary,
-            turnLeft(primary),
-            turnRight(primary),
-            opposite(primary)
+                primary,
+                turnLeft(primary),
+                turnRight(primary),
+                opposite(primary)
         };
-        
+
         for (Direction d : options) {
             Position next = nextPos(enemy.getPosition(), d);
             if (arena.isEmpty(next.row, next.col) && !arena.isJetwall(next.row, next.col)) {
                 return d;
             }
         }
-        
+
         return enemy.direction; // Stay in place if completely blocked
     }
 
@@ -419,27 +420,26 @@ public class AIController {
     private static Direction advancedChaseAvoid(Enemy enemy, ArenaView arena) {
         Position player = arena.getPlayerPosition();
         Position pos = enemy.getPosition();
-        
+
         // Calculate best approach considering obstacles
         Direction bestDir = null;
         double bestScore = Double.NEGATIVE_INFINITY;
-        
+
         for (Direction d : Direction.values()) {
             Position next = nextPos(pos, d);
-            
+
             if (!arena.isEmpty(next.row, next.col) || arena.isJetwall(next.row, next.col)) {
                 continue; // Skip blocked directions
             }
-            
+
             // Score based on distance to player and safety
             double distanceToPlayer = Math.sqrt(
-                Math.pow(next.row - player.row, 2) + 
-                Math.pow(next.col - player.col, 2)
-            );
-            
+                    Math.pow(next.row - player.row, 2) +
+                            Math.pow(next.col - player.col, 2));
+
             // Prefer closer to player, but avoid dangerous positions
             double score = -distanceToPlayer;
-            
+
             // Penalize positions near jetwalls
             for (Direction checkDir : Direction.values()) {
                 Position checkPos = nextPos(next, checkDir);
@@ -447,13 +447,13 @@ public class AIController {
                     score -= 2.0; // Penalty for being near jetwall
                 }
             }
-            
+
             if (score > bestScore) {
                 bestScore = score;
                 bestDir = d;
             }
         }
-        
+
         return bestDir != null ? bestDir : enemy.direction;
     }
 

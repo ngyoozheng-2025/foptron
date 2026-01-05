@@ -11,7 +11,7 @@ public class HUDPanel extends JPanel {
     private int xp;
     private int level;
     private int activeDiscs;
-    
+
     private Queue<String> eventLog = new LinkedList<>();
     private static final int MAX_EVENTS = 5;
 
@@ -62,7 +62,8 @@ public class HUDPanel extends JPanel {
         y += lineHeight;
 
         for (String event : eventLog) {
-            if (y + lineHeight > getHeight() - 20) break;
+            if (y + lineHeight > getHeight() - 20)
+                break;
             g2d.drawString(event, 20, y);
             y += lineHeight;
         }

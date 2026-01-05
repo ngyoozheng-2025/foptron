@@ -1,4 +1,5 @@
 package src.Characters;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 // import java.io.File;
@@ -7,30 +8,34 @@ import java.util.Scanner;
 import java.io.InputStream;
 
 public class CharacterLoader {
-    public static ArrayList<Characters> loadCharacters(String filename){
+    public static ArrayList<Characters> loadCharacters(String filename) {
         ArrayList<Characters> characters = new ArrayList<>();
-        try{
+        try {
             InputStream is = CharacterLoader.class.getResourceAsStream("/src/Characters/Characters.txt");
             if (is == null) {
                 System.out.println("Resource not found!");
                 return null;
             }
             Scanner read = new Scanner(is);
-            while(read.hasNextLine()){
+            while (read.hasNextLine()) {
                 String line = read.nextLine().strip();
 
-                //Ignores comment lines or empty lines if any
-                if (line.startsWith("#") || line.isEmpty()){continue;}
+                // Ignores comment lines or empty lines if any
+                if (line.startsWith("#") || line.isEmpty()) {
+                    continue;
+                }
 
                 String[] attributes = line.split(",");
-                if (attributes.length != 13){
+                if (attributes.length != 13) {
                     System.out.println("Invalid character line");
                     continue;
                 }
 
                 // character data stored in the format:
-                // # name, colour, xp, level, speed, stability, handling, disc_slot, discs_owned, lives, start_row, start_column, alive
-                // This section parses all string values from array attributes into their required datatypes.
+                // # name, colour, xp, level, speed, stability, handling, disc_slot,
+                // discs_owned, lives, start_row, start_column, alive
+                // This section parses all string values from array attributes into their
+                // required datatypes.
                 String name = attributes[0];
                 String color = attributes[1];
                 int xp = Integer.parseInt(attributes[2]);
@@ -45,22 +50,24 @@ public class CharacterLoader {
                 int start_column = Integer.parseInt(attributes[11]);
                 int alive = Integer.parseInt(attributes[12]);
 
-                //debugging purposes
+                // debugging purposes
                 // for (String attr: attributes){
-                //     System.out.println(attr);
+                // System.out.println(attr);
                 // }
                 // System.out.println(name.toLowerCase());
 
                 // Create character from name:
-                switch (name.toLowerCase()){
+                switch (name.toLowerCase()) {
                     case "tron":
-                        Tron tron = new Tron(name,color,xp,level,speed, stability, handling, disc_slot, discs_owned, lives, start_row, start_column, alive);
+                        Tron tron = new Tron(name, color, xp, level, speed, stability, handling, disc_slot, discs_owned,
+                                lives, start_row, start_column, alive);
                         tron.loadPlayerImage();
                         characters.add(tron);
                         System.out.println("Tron successfully loaded");
                         break;
                     case "kevin":
-                        KevinFlynn kevin = new KevinFlynn(name, color, xp, level, speed, stability, handling, disc_slot, discs_owned, lives, start_row, start_column, alive);
+                        KevinFlynn kevin = new KevinFlynn(name, color, xp, level, speed, stability, handling, disc_slot,
+                                discs_owned, lives, start_row, start_column, alive);
                         kevin.loadPlayerImage();
                         characters.add(kevin);
                         System.out.println("KevinFlynn successfully loaded");
@@ -72,9 +79,8 @@ public class CharacterLoader {
             }
             read.close();
             return characters;
-        }
-        catch(Exception e){
-            System.out.println("Could not find "+ filename);
+        } catch (Exception e) {
+            System.out.println("Could not find " + filename);
             e.printStackTrace();
             return null;
         }
