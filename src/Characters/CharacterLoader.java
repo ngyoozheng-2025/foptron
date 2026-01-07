@@ -11,7 +11,7 @@ public class CharacterLoader {
     public static ArrayList<Characters> loadCharacters(String filename) {
         ArrayList<Characters> characters = new ArrayList<>();
         try {
-            InputStream is = CharacterLoader.class.getResourceAsStream("/src/Characters/Characters.txt");
+            InputStream is = CharacterLoader.class.getResourceAsStream("Characters.txt");
             if (is == null) {
                 System.out.println("Resource not found!");
                 return null;

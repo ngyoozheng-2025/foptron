@@ -6,9 +6,8 @@ import java.awt.Graphics2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import javax.swing.Timer;
 import javax.imageio.ImageIO;
-
 import src.TEMP_Main.TEMP_GamePanel;
 
 public abstract class Characters extends Entity {
@@ -23,7 +22,18 @@ public abstract class Characters extends Entity {
     protected int discs_owned;
     protected double lives;
 
-    // Constructor
+    // Saved initial values for reset
+    private final int initXp;
+    private final int initLevel;
+    private final int initDiscsOwned;
+    private final double initLives;
+    private boolean canUpdateLives = true;
+    private Timer lifeCooldownTimer;
+
+    // level-up glow timer
+    private int glowTimer = 0;
+    private final int GLOW_DURATION = 60;
+
     public Characters(String name, String color, int xp, int level, double speed,
             double stability, double handling, int disc_slot, int discs_owned, double lives,
             int start_row, int start_column, int alive) {
@@ -37,6 +47,12 @@ public abstract class Characters extends Entity {
         this.disc_slot = disc_slot;
         this.discs_owned = discs_owned;
         this.lives = lives;
+
+        // record initial values for reset() later
+        this.initXp = xp;
+        this.initLevel = level;
+        this.initDiscsOwned = discs_owned;
+        this.initLives = lives;
     }
 
     // getters and setters
@@ -76,55 +92,42 @@ public abstract class Characters extends Entity {
         this.level = newLevel;
     }
 
-    // method to update lives, note value can be +ve or -ve, also determines if a
-    // character is dead
-    public void updateLives(double value) {
-        lives += value;
-        if (lives <= 0) {
-            this.alive = false;
-        }
+    public void setXp(int xp) {
+        this.xp = xp;
     }
 
-    // gain xp method
-    public void gainXp(int value) {
-        xp += value;
+    public void setLives(double lives) {
+        this.lives = lives;
+    }
+
+    // method to update lives, note value can be +ve or -ve, also determines if a
+    // character is dead
+    public boolean updateLives(double value) {
+        if (!canUpdateLives) {
+            return false; // cooldown active → no damage applied
+        }
+
+        canUpdateLives = false;
+
+        lives += value;
+        if (lives <= 0) {
+            alive = false;
+        }
+
+        if (lifeCooldownTimer != null && lifeCooldownTimer.isRunning()) {
+            lifeCooldownTimer.stop();
+        }
+
+        lifeCooldownTimer = new Timer(500, e -> canUpdateLives = true);
+        lifeCooldownTimer.setRepeats(false);
+        lifeCooldownTimer.start();
+
+        return true;
     }
 
     // stat increase method (note that stats increase differ for each character.
-    // this method is overriden in Tron.java and Kevin.java respectively)
+    // this method is overridden in Tron.java and Kevin.java respectively)
     protected abstract void applyStatIncrease();
-
-    // level up method (each 100 xp increments level before level 10, and
-    // subsequently, each 1000 xp increments level)
-    public void levelUp() {
-        boolean leveled_up = false;
-        if (level < 10) {
-            if (xp % 100 == 0) {
-                level += 1;
-                leveled_up = true;
-            }
-        } else {
-            if ((xp - 1000) % 200 == 0) {
-                if (level < 99) {
-                    level += 1;
-                    leveled_up = true;
-                }
-            }
-        }
-        if (leveled_up) {
-            // +1 life every 10 levels
-            if (level % 10 == 0) {
-                updateLives(1.0);
-                ;
-            }
-            // Additional disc slot every 15 levels
-            if (level % 15 == 0) {
-                disc_slot += 1;
-            }
-            startGlow();
-            applyStatIncrease();
-        }
-    }
 
     // for image loading
     public abstract String getBaseImagePath();
@@ -140,10 +143,6 @@ public abstract class Characters extends Entity {
             e.printStackTrace();
         }
     }
-
-    // timer for glow on level up
-    private int glowTimer = 0;
-    private final int GLOW_DURATION = 60;
 
     public void startGlow() {
         this.glowTimer = GLOW_DURATION;
@@ -217,8 +216,7 @@ public abstract class Characters extends Entity {
         int centerX = (int) position.col + gp.tileSize / 2;
         int centerY = (int) position.row + gp.tileSize / 2;
 
-        // glow on level up (p.s. very ugly oval right now but will probably upgrade to
-        // a nicer pic)
+        // glow on level up
         if (glowTimer > 0) {
             updateGlow();
             float glowAlpha = (float) glowTimer / GLOW_DURATION;
@@ -245,7 +243,6 @@ public abstract class Characters extends Entity {
         return color + " • Handling: " + String.format("%.1f", handling) +
                 " • Stability: " + String.format("%.1f", stability) +
                 " • Speed: " + String.format("%.1f", speed);
-
     }
 
     public void useDisc() {
@@ -260,12 +257,10 @@ public abstract class Characters extends Entity {
 
     public double getLives() {
         return lives;
-
     }
 
     public int getDiscsOwned() {
         return discs_owned;
-
     }
 
     public int getDiscSlot() {
@@ -277,5 +272,71 @@ public abstract class Characters extends Entity {
     // package)
     public void hitByDisc(Object owner) {
         updateLives(-1.0); // Lose a life when hit by disc
+    }
+
+    public void collectDisc() {
+        discs_owned++;
+    }
+
+    /**
+     * Restore the character to the initial state loaded from file.
+     * Called when returning to main menu / restarting a round.
+     */
+    public void reset() {
+        this.alive = true;
+        this.xp = initXp;
+        this.level = initLevel;
+        this.discs_owned = initDiscsOwned;
+        this.lives = initLives;
+        // stop any level-up glow
+        this.glowTimer = 0;
+    }
+
+    /**
+     * Adds XP to the character and handles level ups automatically.
+     * Extra XP carries over to next level.
+     */
+    public void gainXp(int amount) {
+        if (amount <= 0)
+            return;
+
+        xp += amount;
+
+        // Level up as long as XP exceeds current level threshold
+        while (xp >= xpToLevelUp()) {
+            xp -= xpToLevelUp(); // subtract the threshold (reset XP bar)
+            level++; // increment level
+            // level-up side effects:
+            if (level % 10 == 0) {
+                updateLives(1.0);
+            }
+            if (level % 15 == 0) {
+                disc_slot += 1;
+            }
+            startGlow();
+            applyStatIncrease();
+            onLevelUp();
+        }
+    }
+
+    /**
+     * Returns the XP required to reach the next level
+     */
+    public int xpToLevelUp() {
+        // Matches your earlier comment:
+        // - Levels 1..9 require 100 XP each
+        // - From level 10 onwards the requirement rises (we use 1000 + 200*(level-10))
+        if (level < 10) {
+            return 100;
+        } else {
+            return 1000 + (level - 10) * 200;
+        }
+    }
+
+    /**
+     * Optional: called whenever the player levels up (hook for logging, sounds)
+     */
+    private void onLevelUp() {
+        System.out.println(getName() + " leveled up! Now level " + level);
     }
 }
